@@ -5,6 +5,7 @@
 , typing-extensions
 , openai-whisper
 , pyaudio
+, soundfile
 }:
 
 buildPythonPackage rec {
@@ -22,12 +23,13 @@ buildPythonPackage rec {
     typing-extensions
     openai-whisper
     pyaudio
+    soundfile
   ];
 
 
   pythonImportsCheck = [ "speech_recognition" ];
   doCheck = false;
-  
+
   meta = with lib; {
     description = "Library for performing speech recognition, with support for several engines and APIs, online and offline";
     homepage = "https://pypi.org/project/SpeechRecognition/";

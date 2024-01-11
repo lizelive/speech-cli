@@ -22,7 +22,7 @@
         dependencies = pickPythonPackage python3Packages;
       in
       {
-        devShell.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           buildInputs = [
             (pkgs.python3.withPackages pickPythonPackage)
           ];

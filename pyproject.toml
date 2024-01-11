@@ -3,14 +3,13 @@ name = "speech-cli"
 version = "0.1.0"
 
 dependencies = [
-    # "transformers",
-    # "torchaudio",
-    # "torch",
-    # "sounddevice",
-    # "sentencepiece",
+    "transformers",
+    "torchaudio",
+    "torch",
+    "sentencepiece",
     "pyaudio",
     "numpy",
-    # "datasets",
+    "datasets",
     "speechrecognition"
 ]
 

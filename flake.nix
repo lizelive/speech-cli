@@ -3,7 +3,7 @@
   description = "Flake utils demo";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/release-23.11";
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system:
@@ -17,13 +17,17 @@
           ];
           config = { };
         };
+        python3Packages = pkgs.python3Packages;
+        pickPythonPackage = pkgs.lib.attrsets.attrVals pyproject.project.dependencies;
+        dependencies = pickPythonPackage python3Packages;
       in
       {
+        devShell.default = pkgs.mkShell {
+          buildInputs = [
+            (pkgs.python3.withPackages pickPythonPackage)
+          ];
+        };
         packages.default =
-          let
-            python3Packages = pkgs.python3Packages;
-            dependencies = pkgs.lib.attrsets.attrVals pyproject.project.dependencies python3Packages;
-          in
           python3Packages.buildPythonApplication {
             inherit (pyproject.project) name;
             inherit src;

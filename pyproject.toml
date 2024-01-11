@@ -1,0 +1,18 @@
+[project]
+name = "speech-cli"
+version = "0.1.0"
+
+dependencies = [
+    # "transformers",
+    # "torchaudio",
+    # "torch",
+    # "sounddevice",
+    # "sentencepiece",
+    "pyaudio",
+    "numpy",
+    # "datasets",
+    "speechrecognition"
+]
+
+[project.scripts]
+speech-cli = "speech_cli:main"

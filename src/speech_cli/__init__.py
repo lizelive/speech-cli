@@ -4,11 +4,13 @@ import time
 import speech_recognition as sr
 from transformers import pipeline
 from datasets import load_dataset
-import soundfile as sf
 import torch
-
+import pyaudio
+import numpy as np
 
 # The recognition language is determined by language, an uncapitalized full language name like "english" or "chinese". See the full language list at https://github.com/openai/whisper/blob/main/whisper/tokenizer.py
+
+from timeit import default_timer
 
 
 
@@ -56,17 +58,56 @@ def asr():
 
 def synth():
     synthesiser = pipeline("text-to-speech", "microsoft/speecht5_tts")
-
     embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
     speaker_embedding = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0)
+
+    p = pyaudio.PyAudio()
+
+    volume = 0.5  # range [0.0, 1.0]
+    sampling_rate = 16000  # sampling rate, Hz, must be integer
+    duration = 5.0  # in seconds, may be float
+    f = 440.0  # sine frequency, Hz, may be float
+
+    # generate samples, note conversion to float32 array
+    samples = (np.sin(2 * np.pi * np.arange(sampling_rate * duration) * f / sampling_rate)).astype(np.float32)
+
+    # per @yahweh comment explicitly convert to bytes sequence
+    output_bytes = (volume * samples).tobytes()
+
+    # for paFloat32 sample values must be in range [-1.0, 1.0]
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=1,
+                    rate=sampling_rate,
+                    output=True)
+
     # print(speaker_embedding)
     # You can replace this embedding with your own as well.
 
-    speech = synthesiser("Hello, my dog is cooler than you!", forward_params={"speaker_embeddings": speaker_embedding})
+    try:
+        while True:
+            say = input("Say something: ")
+            start = default_timer()
+            speech = synthesiser(say, forward_params={"speaker_embeddings": speaker_embedding})
+            duration = default_timer() - start
+            print(f"synth duration: {duration}")
 
-    sf.write("speech.wav", speech["audio"], samplerate=speech["sampling_rate"])
+            assert sampling_rate==speech["sampling_rate"], "sampling_rate is not the same as the synthesiser's sampling rate"
+            output_bytes = (volume * speech["audio"]).tobytes()
 
-def main():
+            stream.write(output_bytes)
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(e)
+
+
+
+    stream.stop_stream()
+    stream.close()
+
+    p.terminate()
+
+def pca():
     # synth()
     from sklearn.datasets import load_iris
     from sklearn.decomposition import PCA
@@ -80,9 +121,19 @@ def main():
     # mean-centers and auto-scales the data
     # x = StandardScaler().fit_transform(x)
 
-    pca = PCA(.5)
+    pca = PCA(.8)
+
+    # principalComponents = pca.fit_transform(X = x)
+
+    # # To get how many principal components was chosen
+    # 
+    # pca = PCA(n_components=2)
 
     principalComponents = pca.fit_transform(X = x)
 
-    # To get how many principal components was chosen
+    # to get how much variance was retained
+    print(pca.explained_variance_ratio_.sum())
     print(pca.n_components_)
+
+def main():
+    synth()

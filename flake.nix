@@ -15,7 +15,10 @@
           overlays = [
             (import ./overlay)
           ];
-          config = { };
+          config = {
+            allowUnfree = true;
+            # cudaSupport = true;
+          };
         };
         python3Packages = pkgs.python3Packages;
         pickPythonPackage = pkgs.lib.attrsets.attrVals pyproject.project.dependencies;

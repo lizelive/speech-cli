@@ -54,14 +54,35 @@ def asr():
     print("done")
 
 
-def main():
+def synth():
     synthesiser = pipeline("text-to-speech", "microsoft/speecht5_tts")
 
-    embeddings_dataset = load_dataset("~/.cache/huggingface/datasets/Matthijs___cmu-arctic-xvectors/default/0.0.1/a62fea1f9415e240301ea0042ffad2a3aadf4d1caa7f9a8d9512d631723e781f/", split="validation")
+    embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
     speaker_embedding = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0)
-    print(speaker_embedding)
+    # print(speaker_embedding)
     # You can replace this embedding with your own as well.
 
     speech = synthesiser("Hello, my dog is cooler than you!", forward_params={"speaker_embeddings": speaker_embedding})
 
     sf.write("speech.wav", speech["audio"], samplerate=speech["sampling_rate"])
+
+def main():
+    # synth()
+    from sklearn.datasets import load_iris
+    from sklearn.decomposition import PCA
+    from sklearn.preprocessing import StandardScaler
+
+    embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
+    x = embeddings_dataset["xvector"]
+
+
+
+    # mean-centers and auto-scales the data
+    # x = StandardScaler().fit_transform(x)
+
+    pca = PCA(.5)
+
+    principalComponents = pca.fit_transform(X = x)
+
+    # To get how many principal components was chosen
+    print(pca.n_components_)

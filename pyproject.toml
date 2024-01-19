@@ -10,7 +10,9 @@ dependencies = [
     "pyaudio",
     "numpy",
     "datasets",
-    "speechrecognition"
+    "speechrecognition",
+    "scipy",
+    "scikit-learn",
 ]
 
 [project.scripts]

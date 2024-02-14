@@ -6,4 +6,15 @@ let
 
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [ packageOverrides ];
 in
-{ inherit pythonPackagesExtensions; }
+{
+  inherit pythonPackagesExtensions;
+  opencv = prev.opencv.overrideAttrs (old: {
+    doCheck = false;
+  });
+  # opencv = prev.opencv.override {
+  #   enableGtk3 = false;
+  #   enableFfmpeg = false;
+  #   enableCuda = false;
+  #   enableUnfree = false;
+  # };
+}
